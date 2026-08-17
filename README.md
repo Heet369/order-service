@@ -203,6 +203,10 @@ Once the server is running, you can access the interactive Swagger UI in your br
 
 ### 2. Get Customer Orders (Bonus - Single Shard Routing)
 - **Endpoint**: `GET /orders?customerId=CUST-00042&limit=10&offset=0`
+- **Query Parameters**:
+  - `customerId` *(required)*: The unique customer identifier. The router uses this to target the exact shard.
+  - `limit` *(optional, default: 50)*: Number of order records to return per page.
+  - `offset` *(optional, default: 0)*: Number of records to skip from the beginning (used for pagination).
 - **Response**:
 ```json
 {
