@@ -1,0 +1,45 @@
+{
+  "name": "order-service",
+  "version": "1.0.0",
+  "description": "Scalable Order Ingestion Service with PostgreSQL Sharding and Google Cloud Storage (ADC)",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "db:init": "node src/db/migrate.js",
+    "generate:data": "node scripts/generate_orders.js 10000 sample_orders_10k.csv",
+    "test": "jest --runInBand --detectOpenHandles"
+  },
+  "keywords": [
+    "nodejs",
+    "postgresql",
+    "sharding",
+    "gcp",
+    "adc",
+    "streaming",
+    "batch-processing"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/storage": "^7.15.0",
+    "busboy": "^1.6.0",
+    "cors": "^2.8.5",
+    "csv-parser": "^3.2.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "pg": "^8.13.3",
+    "winston": "^3.17.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 10000
+  }
+}
