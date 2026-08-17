@@ -162,7 +162,7 @@ npm start
 
 ### Interactive Swagger UI
 Once the server is running, you can access the interactive Swagger UI in your browser to test all endpoints:
-👉 **`http://localhost:3000/api-docs`**
+ **`http://localhost:3000/api-docs`**
 
 ---
 
