@@ -1,0 +1,209 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Order Service API",
+    "version": "1.0.0",
+    "description": "Scalable Order Ingestion Service with PostgreSQL Sharding and Google Cloud Storage (ADC)"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local Development Server"
+    }
+  ],
+  "paths": {
+    "/upload-orders": {
+      "post": {
+        "summary": "Upload & Ingest Orders CSV",
+        "description": "Streams CSV orders file to Google Cloud Storage (or local storage) and concurrently batches & inserts records across PostgreSQL shards.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["file"],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Orders CSV file (e.g. sample_orders_10k.csv)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Orders successfully processed and sharded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "message": { "type": "string", "example": "Order file processed and stored successfully across shards" },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "status": { "type": "string", "example": "SUCCESS" },
+                        "storage": {
+                          "type": "object",
+                          "properties": {
+                            "driver": { "type": "string", "example": "gcs" },
+                            "storage_path": { "type": "string", "example": "gs://order-vault-505818/orders_12345.csv" }
+                          }
+                        },
+                        "metrics": {
+                          "type": "object",
+                          "properties": {
+                            "total_records": { "type": "integer", "example": 10000 },
+                            "successful_records": { "type": "integer", "example": 10000 },
+                            "failed_records": { "type": "integer", "example": 0 },
+                            "duration_ms": { "type": "integer", "example": 420 },
+                            "records_per_second": { "type": "number", "example": 23809.52 }
+                          }
+                        },
+                        "shard_distribution": {
+                          "type": "object",
+                          "properties": {
+                            "orders_shard_0": { "type": "integer", "example": 2514 },
+                            "orders_shard_1": { "type": "integer", "example": 2489 },
+                            "orders_shard_2": { "type": "integer", "example": 2503 },
+                            "orders_shard_3": { "type": "integer", "example": 2494 }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or file format"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/orders": {
+      "get": {
+        "summary": "Get Orders by Customer ID",
+        "description": "Directly routes to the customer's specific shard using consistent hashing.",
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "example": "CUST-00001" },
+            "description": "Customer identifier"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 50, "example": 10 },
+            "description": "Number of records to return"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 0, "example": 0 },
+            "description": "Number of records to skip"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer orders retrieved from designated shard",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "customerId": { "type": "string", "example": "CUST-00001" },
+                        "routedShard": { "type": "string", "example": "orders_shard_1" },
+                        "shardId": { "type": "integer", "example": 1 },
+                        "total": { "type": "integer", "example": 12 },
+                        "limit": { "type": "integer", "example": 10 },
+                        "offset": { "type": "integer", "example": 0 },
+                        "orders": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "order_id": { "type": "string", "example": "ORD-1786976374043-A3A8D7F6" },
+                              "customer_id": { "type": "string", "example": "CUST-00001" },
+                              "order_date": { "type": "string", "format": "date-time" },
+                              "order_amount": { "type": "number", "example": 189.99 },
+                              "status": { "type": "string", "example": "COMPLETED" }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing customerId parameter"
+          }
+        }
+      }
+    },
+    "/orders/{orderId}": {
+      "get": {
+        "summary": "Get Order by ID",
+        "description": "Retrieves an individual order across all database shards.",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "example": "ORD-1786976374043-A3A8D7F6" },
+            "description": "Order ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "order_id": { "type": "string", "example": "ORD-1786976374043-A3A8D7F6" },
+                        "customer_id": { "type": "string", "example": "CUST-00001" },
+                        "order_date": { "type": "string", "format": "date-time" },
+                        "order_amount": { "type": "number", "example": 189.99 },
+                        "status": { "type": "string", "example": "COMPLETED" },
+                        "shard_table": { "type": "string", "example": "orders_shard_1" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Order not found in any shard"
+          }
+        }
+      }
+    }
+  }
+}

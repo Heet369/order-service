@@ -7,3 +7,4 @@ coverage/
 gcp-key.json
 *key*.json
 *.pem
+package-lock.json

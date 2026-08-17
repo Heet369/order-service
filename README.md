@@ -158,7 +158,13 @@ npm start
 
 ---
 
-## 6. API Reference
+## 6. API Reference & Swagger UI
+
+### Interactive Swagger UI
+Once the server is running, you can access the interactive Swagger UI in your browser to test all endpoints:
+👉 **`http://localhost:3000/api-docs`**
+
+---
 
 ### 1. Upload & Ingest Orders
 - **Endpoint**: `POST /upload-orders`
@@ -241,103 +247,7 @@ npm start
 
 ---
 
-## 7. Postman Collection & cURL Commands
-
-### Ready-to-Use Postman Collection JSON
-Copy this JSON, open Postman $\to$ click **Import** $\to$ paste raw text:
-
-```json
-{
-  "info": {
-    "name": "Order Service API Collection",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-  },
-  "item": [
-    {
-      "name": "1. Upload Orders CSV (10k records)",
-      "request": {
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "formdata",
-          "formdata": [
-            {
-              "key": "file",
-              "type": "file",
-              "src": "sample_orders_10k.csv"
-            }
-          ]
-        },
-        "url": {
-          "raw": "http://localhost:3000/upload-orders",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["upload-orders"]
-        }
-      }
-    },
-    {
-      "name": "2. Get Orders By Customer ID (Single Shard Route)",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:3000/orders?customerId=CUST-00001&limit=20&offset=0",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["orders"],
-          "query": [
-            { "key": "customerId", "value": "CUST-00001" },
-            { "key": "limit", "value": "20" },
-            { "key": "offset", "value": "0" }
-          ]
-        }
-      }
-    },
-    {
-      "name": "3. Get Order By ID",
-      "request": {
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "http://localhost:3000/orders/:orderId",
-          "protocol": "http",
-          "host": ["localhost"],
-          "port": "3000",
-          "path": ["orders", ":orderId"],
-          "variable": [
-            { "key": "orderId", "value": "ORD-SAMPLE" }
-          ]
-        }
-      }
-    }
-  ]
-}
-```
-
-### cURL Commands
-
-#### Upload Orders CSV:
-```bash
-curl -X POST http://localhost:3000/upload-orders \
-  -F "file=@sample_orders_10k.csv"
-```
-
-#### Query Customer Orders:
-```bash
-curl -X GET "http://localhost:3000/orders?customerId=CUST-00001"
-```
-
-#### Query Order by ID:
-```bash
-curl -X GET "http://localhost:3000/orders/ORD-1786976374043-A3A8D7F6"
-```
-
----
-
-## 8. Running Automated Tests
+## 7. Running Automated Tests
 
 Run the test suite using Jest:
 ```bash
@@ -346,7 +256,7 @@ npm test
 
 ---
 
-## 9. Project Structure
+## 8. Project Structure
 
 ```
 order-service/
@@ -368,6 +278,8 @@ order-service/
 │   │   ├── schema.sql          # SQL schema DDL
 │   │   ├── migrate.js          # Database migration runner
 │   │   └── shardRouter.js      # Consistent hashing & shard router
+│   ├── docs/
+│   │   └── swagger.json        # OpenAPI 3.0 specification
 │   ├── routes/
 │   │   └── orderRoutes.js      # Express API routes
 │   ├── services/

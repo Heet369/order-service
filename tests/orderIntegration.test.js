@@ -9,7 +9,12 @@ describe('Order Service API Endpoints', () => {
     await closePool();
   });
 
-  describe('POST /upload-orders Validation', () => {
+  describe('GET /api-docs', () => {
+    test('should serve Swagger UI documentation', async () => {
+      const res = await request(app).get('/api-docs/');
+      expect([200, 301]).toContain(res.status);
+    });
+  });
     test('should reject request without multipart content-type', async () => {
       const res = await request(app)
         .post('/upload-orders')
