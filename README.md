@@ -75,6 +75,10 @@ The service utilizes `@google-cloud/storage` with **Application Default Credenti
      ```powershell
      $env:GOOGLE_APPLICATION_CREDENTIALS="H:\order-service\gcp-key.json"
      ```
+   - **Windows (Command Prompt / CMD)**:
+     ```cmd
+     set GOOGLE_APPLICATION_CREDENTIALS=H:\order-service\gcp-key.json
+     ```
    - **Linux / macOS (Bash)**:
      ```bash
      export GOOGLE_APPLICATION_CREDENTIALS="/path/to/gcp-key.json"
@@ -143,6 +147,11 @@ node scripts/generate_orders.js 10000 sample_orders_with_errors.csv --with-inval
 - **Windows (PowerShell)**:
   ```powershell
   $env:GOOGLE_APPLICATION_CREDENTIALS="H:\order-service\gcp-key.json"
+  npm start
+  ```
+- **Windows (Command Prompt / CMD)**:
+  ```cmd
+  set GOOGLE_APPLICATION_CREDENTIALS=H:\order-service\gcp-key.json
   npm start
   ```
 - **Linux / macOS**:
